@@ -1,0 +1,35 @@
+// Prisma schema for emotional AI robot
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Memory: every message (from user or bot) is stored here
+model Message {
+  id        String   @id @default(cuid())
+  role      String   // "user" | "assistant"
+  content   String
+  // Snapshot of the bot's emotional state at the moment of this message
+  energy    Float    // 0..100  (طاقة)
+  mood      Float    // 0..100  (مزاج)
+  stress    Float    // 0..100  (انفعال/توتر)
+  joy       Float    // 0..100  (فرح)
+  createdAt DateTime @default(now())
+}
+
+// Singleton row that holds the current emotional state of the bot
+model BotState {
+  id              String   @id @default("singleton")
+  energy          Float    @default(80)   // طاقة
+  mood            Float    @default(70)   // مزاج
+  stress          Float    @default(20)   // توتر/انفعال
+  joy             Float    @default(60)   // فرح
+  conversationCount Int   @default(0)
+  lastInteraction DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
